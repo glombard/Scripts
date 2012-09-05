@@ -7,3 +7,4 @@ powershell -file %ps%\Set-Disable-HideFileExt.ps1
 powershell -file %ps%\Get-LastPass.ps1
 powershell -file %ps%\Get-ExamDiffPro.ps1
 powershell -file %ps%\Get-GitHubForWindows.ps1
+powershell -file %ps%\Get-WindowsLiveWriter2012.ps1
