@@ -42,5 +42,5 @@ if (!(Test-Path $instPath))
 }
 else
 {
-    Write-Host "Already installed."
+    Write-Host "7-Zip already installed."
 }

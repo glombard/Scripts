@@ -45,5 +45,5 @@ if (!(Test-Path $instPath))
 }
 else
 {
-    Write-Host "Already installed."
+    Write-Host "ExamDiff Pro already installed."
 }

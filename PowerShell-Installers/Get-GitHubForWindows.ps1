@@ -67,5 +67,5 @@ if (!(Test-Path $instPath))
 }
 else
 {
-    Write-Host "Already installed."
+    Write-Host "GitHub for Windows already installed."
 }

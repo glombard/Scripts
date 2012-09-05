@@ -60,7 +60,7 @@ $instPath = "$env:ProgramFiles\LastPass\lastpass.exe"
 
 if (Test-Path $instPath)
 {
-    Write-Host "Already installed."
+    Write-Host "LastPass already installed."
 }
 else
 {
