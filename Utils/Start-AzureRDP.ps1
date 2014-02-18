@@ -4,10 +4,21 @@ param (
 	[string]$name = $(Read-Host "Azure VM name")
 )
 
-$vm = Get-AzureVM -ServiceName $name
+$vm = Get-AzureVM | where { $_.ServiceName -eq $name }
+if (!$?) {
+    Add-AzureAccount
+    $vm = Get-AzureVM -ServiceName $name
+}
+
+if ($vm -eq $null) {
+    Write-Host "No such VM - $name"
+    Exit
+}
+
 # Start the Azure Virtual Machine first:
 if ($vm.PowerState -ne 'Started') {
-	Start-AzureVM -Name $name -ServiceName $name
+    Write-Host "Starting $name ..."
+	$vm | Start-AzureVM
 }
 
 # Start Remote Desktop session:

@@ -3,6 +3,13 @@ setlocal
 
 if exist "c:\Python27\python.exe" goto alreayInstalled
 
+where curl
+if errorlevel 1 (
+	where cinst
+	if errorlevel 1 powershell -NoProfile -ExecutionPolicy unrestricted -Command "iex ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1'))" && SET PATH=%PATH%;%systemdrive%\chocolatey\bin
+	cinst curl	
+)
+
 REM Determine Python 2.7 download url:
 for /f "usebackq" %%a in (`powershell -NoProfile -ExecutionPolicy unrestricted -Command "$u='http://python.org';(new-object net.webclient).DownloadString($u+'/download/') -match 'href=.(.*?python-2.*?msi)'|Out-Null;$u+$matches[1]"`) do set url=%%a
 
