@@ -38,10 +38,13 @@ setx PATH "%PATH%" /m
 
 echo Installing easy_install and virtualenv...
 echo.
-curl -k -o%temp%\ez_setup.py https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py
-C:\Python27\python %temp%\ez_setup.py
-C:\Python27\Scripts\easy_install virtualenv
-C:\Python27\Scripts\easy_install yolk
+call curl -k -o%temp%\ez_setup.py https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py
+call C:\Python27\python %temp%\ez_setup.py
+call C:\Python27\Scripts\easy_install virtualenv
+call C:\Python27\Scripts\easy_install yolk
+c:
+cd C:\Python27\Scripts
+yolk --list
 goto :eof
 
 :alreayInstalled
