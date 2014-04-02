@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<CodeSnippets  xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+	<CodeSnippet Format="1.0.0">
+		<Header>
+			<Title>Build() and implicit operator</Title>
+			<Shortcut>build</Shortcut>
+			<Description>Build() and implicit operator</Description>
+			<Author>Gert</Author>
+			<SnippetTypes>
+				<SnippetType>Expansion</SnippetType>
+			</SnippetTypes>
+		</Header>
+		<Snippet>
+			<Declarations>
+				<Literal>
+					<ID>class</ID>
+					<ToolTip>Class name</ToolTip>
+					<Default>Foo</Default>
+				</Literal>
+			</Declarations>
+			<Code Language="csharp"><![CDATA[public $class$ Build()
+        {
+            Contract.Ensures(Contract.Result<$class$>() != null);
+            return new $class$($end$);
+        }
+
+        public static implicit operator $class$($class$Builder builder)
+        {
+            return builder.Build();
+        }]]>
+			</Code>
+		</Snippet>
+	</CodeSnippet>
+</CodeSnippets>

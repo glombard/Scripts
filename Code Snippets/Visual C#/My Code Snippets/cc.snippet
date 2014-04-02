@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<CodeSnippets  xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+	<CodeSnippet Format="1.0.0">
+		<Header>
+			<Title>ContractClass</Title>
+			<Shortcut>cc</Shortcut>
+			<Description>ContractClass</Description>
+			<Author>Gert</Author>
+			<SnippetTypes>
+				<SnippetType>Expansion</SnippetType>
+				<SnippetType>SurroundsWith</SnippetType>
+			</SnippetTypes>
+		</Header>
+		<Snippet>
+			<Declarations>
+				<Literal>
+					<ID>name</ID>
+					<ToolTip>Interface name</ToolTip>
+					<Default>IFoo</Default>
+				</Literal>
+			</Declarations>
+			<Code Language="csharp"><![CDATA[[ContractClass(typeof($name$$end$Contract))]
+			$selected$
+
+			[ContractClassFor(typeof($name$))]
+			internal abstract class $name$Contract : $name$$end$
+			{
+			}]]>
+			</Code>
+		</Snippet>
+	</CodeSnippet>
+</CodeSnippets>

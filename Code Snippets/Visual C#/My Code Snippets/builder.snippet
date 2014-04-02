@@ -1,0 +1,64 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<CodeSnippets  xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+	<CodeSnippet Format="1.0.0">
+		<Header>
+			<Title>Build() and implicit operator</Title>
+			<Shortcut>build</Shortcut>
+			<Description>Build() and implicit operator</Description>
+			<Author>Gert</Author>
+			<SnippetTypes>
+				<SnippetType>Expansion</SnippetType>
+			</SnippetTypes>
+		</Header>
+		<Snippet>
+			<Declarations>
+				<Literal>
+					<ID>class</ID>
+					<ToolTip>Class name</ToolTip>
+					<Default>Foo</Default>
+				</Literal>
+				<Literal>
+					<ID>dependency</ID>
+					<ToolTip>Dependency interface</ToolTip>
+					<Default>IService</Default>
+				</Literal>
+			</Declarations>
+			<Code Language="csharp"><![CDATA[internal class $class$Builder
+	{
+		private $dependency$ _value;
+
+		public $class$Builder()
+		{
+			var mock = new Mock<$dependency$>();
+			With(mock.GetMockedObject());
+		}
+
+		public $class$ Build()
+        {
+            Contract.Ensures(Contract.Result<$class$>() != null);
+            var result = new $class$($end$);
+            return result;
+        }
+
+        public static implicit operator $class$($class$Builder builder)
+        {
+            return builder.Build();
+        }
+
+        public $class$Builder With($dependency$ value)
+        {
+        	Contract.Requires(value != null);
+        	_value = value;
+        	return this;
+        }
+
+        [ContractInvariantMethod]
+        private void ObjectInvariant()
+        {
+        	Contract.Invariant(_value != null);
+        }
+	}]]>
+			</Code>
+		</Snippet>
+	</CodeSnippet>
+</CodeSnippets>
