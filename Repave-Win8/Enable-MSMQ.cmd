@@ -1,1 +1,1 @@
-dism /Online /NoRestart /English /Enable-Feature /FeatureName:MSMQ-Container /FeatureName:MSMQ-Server
+dism /Online /NoRestart /English /Enable-Feature /All /FeatureName:MSMQ-Container /FeatureName:MSMQ-Server

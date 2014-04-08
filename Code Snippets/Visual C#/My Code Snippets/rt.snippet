@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<CodeSnippets  xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+	<CodeSnippet Format="1.0.0">
+		<Header>
+			<Title>RegisterType</Title>
+			<Shortcut>rt</Shortcut>
+			<Description>RegisterType</Description>
+			<Author>Gert</Author>
+			<SnippetTypes>
+				<SnippetType>Expansion</SnippetType>
+				<SnippetType>SurroundsWith</SnippetType>
+			</SnippetTypes>
+		</Header>
+		<Snippet>
+			<Declarations>
+				<Literal default="true" Editable="false">
+                    <ID>classname</ID>
+                    <ToolTip>Class name</ToolTip> 
+                    <Function>ClassName()</Function> 
+                    <Default>ClassNamePlaceholder</Default> 
+                </Literal>
+			</Declarations>
+			<Code Language="csharp"><![CDATA[[RegisterType(typeof(I$classname$$end$))]
+			$selected$]]>
+			</Code>
+		</Snippet>
+	</CodeSnippet>
+</CodeSnippets>
