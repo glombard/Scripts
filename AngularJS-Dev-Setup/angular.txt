@@ -1,0 +1,245 @@
+#
+# Prepare a Windows 8 development machine for AngularJS development:
+#
+# run: http://boxstarter.org/package/nr/url?http://myurl/box/angular.txt
+#
+
+$scriptPath = Split-Path -parent $MyInvocation.MyCommand.Definition
+function Install-ChocolateyPackages {
+	Write-Host "Installing Chocolatey packages..."
+
+	$packages = @(
+		'pscx',
+		'7zip.commandline',
+		'curl',
+		'git',
+		'poshgit',
+		'git-credential-winstore',
+		'SourceTree',
+		'python',
+		'libjpeg-turbo',
+		'OptiPNG',
+		'PhantomJS',
+		'nodejs.install'
+		#'stylecop',
+		#'markdownpad2',
+		#'PowerGUI',
+	)
+	$packages | foreach { cinst $_ }
+}
+function Install-NodePackages {
+	Write-Host "Installing Global NodeJS packages..."
+
+	if (!($env:Path -match "nodejs")) {
+		$env:Path += ";$env:ProgramFiles\nodejs"
+	}
+
+	function Install-NodePackagesGlobal {
+		param ([array]$packages)
+		$packages | % {
+			& "npm.cmd" "install" "-g" $_
+		}
+	}
+
+	# Some node packages need VS2012 or VS2013 to build...
+	# See: https://www.npmjs.org/package/node-gyp
+	$vsVersion = "2012"
+	if (Test-Path HKLM:\Software\Microsoft\VisualStudio\12.0) {
+		$vsVersion = "2013"
+	}
+	npm.cmd config set msvs_version $vsVersion
+	
+	Install-NodePackagesGlobal(@(
+		'yo',
+		'grunt-cli',
+		'bower',
+		'generator-angular',
+		'protractor',
+		'karma',
+		'karma-jasmine',
+  		'karma-chrome-launcher',
+  		'karma-ie-launcher',
+  		'karma-ng-scenario',
+  		'typescript'
+	))
+
+	npm cache clean
+
+	# These ones below I need to confirm which are really needed:
+	# selenium-webdriver
+	# chromedriver
+	# jasmine-node
+	# selenium
+}
+# This scripts loads the cool posh-monokai.ps1 script from github.com/ntwb and
+# runs it in each of the HKCU:\Console register sub-keys.
+
+function Get-MonokaiScript {
+    Write-Host "Downloading posh-monokai.ps1 ..." -ForegroundColor Green
+    $client = New-Object System.Net.WebClient
+    $monokai = $client.DownloadString('https://github.com/ntwb/posh-monokai/raw/master/posh-monokai.ps1')
+    return $monokai
+}
+
+function Set-MonokaiConsoleRegistry {
+    param (
+        [string]$registryKey,
+        [string]$monokaiScript
+    )
+    
+    write-host "`nUpdating: $registryKey ..." -ForegroundColor Green
+
+    $script = $monokaiScript.Replace(".\Windows PowerShell", $registryKey)
+    iex $script
+}
+
+function Install-PoshMonokai {
+    $monokaiScript = Get-MonokaiScript
+
+    Push-Location
+    Set-Location HKCU:\Console
+
+    if (!(Test-Path ".\Windows PowerShell")) {
+        New-Item ".\Windows PowerShell"
+    }
+
+    $keys = dir | Resolve-Path -Relative
+    #$keys += "." # TODO: I'm not sure if this one is necessary...
+    #$keys += ".\Windows PowerShell" # TODO: not sure about this one either...
+    $keys | % { Set-MonokaiConsoleRegistry $_ $monokaiScript }
+    
+    Pop-Location
+
+    $Host.PrivateData.DebugBackgroundColor = "DarkGray"
+    $Host.PrivateData.ErrorBackgroundColor = "DarkGray"
+
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Console\TrueTypeFont" -Name 000 -Type String -Value "Source Code Pro" -ErrorAction SilentlyContinue
+    if (!$?) {
+        Write-Host "`nWarning: couldn't set 'Source Code Pro' as console font in the Registry." -ForegroundColor Yellow
+    }
+}
+function Install-PythonPackages {
+	# TODO
+}
+function Install-RubyGems {
+	Write-Host "Installing Ruby Gems..."
+
+	if (!(Test-Path C:\ruby200\bin\ruby.exe)) {
+		cinst ruby -force
+	}
+
+	cinst compass -source ruby
+	gem install css_parser
+}
+function Install-SublimeTextPackage {
+    param ([string]$url, [string]$packageName)
+
+    $web = New-Object System.Net.WebClient
+    $destDir = "$env:Temp\SublimeText-Packages"
+    
+    New-Item -ItemType Directory -Force -Path $destDir
+    $dest = "$destDir\$packageName.zip"
+    $packagesDir = "$env:APPDATA\Sublime Text 3\Packages"
+    $web.DownloadFile($url, $dest)
+    Start-Process 7za.bat -NoNewWindow -Wait -ArgumentList "-o`"$packagesDir`"","-y","x",$dest
+    Remove-Item "$packagesDir\packageName" -Force -Recurse -ErrorAction SilentlyContinue
+    $path = (Resolve-Path -Path $packagesDir\$packageName*-master).ProviderPath
+	Rename-Item -Force -Path $path -NewName "$packagesDir\$packageName"
+}
+
+function Install-SublimeTextPackages {
+	Install-SublimeTextPackage "https://github.com/SublimeText/PowerShell/archive/master.zip" "PowerShell"
+	Install-SublimeTextPackage "https://github.com/angular-ui/AngularJS-sublime-package/archive/master.zip" "AngularJS"
+
+    # Package Control:
+	$web = New-Object System.Net.WebClient
+    $web.DownloadFile("https://sublime.wbond.net/Package%20Control.sublime-package", "$env:APPDATA\Sublime Text 3\Installed Packages\Package Control.sublime-package")
+}
+function Install-VisualStudio {
+	if (Test-Path HKLM:\Software\Microsoft\VisualStudio\12.0) {
+		Write-Host "Visual Studio 2013 found..."
+		return
+	}
+	
+	if (Test-Path HKLM:\Software\Microsoft\VisualStudio\11.0) {
+		Write-Host "Visual Studio 2012 found..."
+		return
+	}
+
+	# For VS2012:	
+	# cinst VisualStudio2012WDX
+	
+	# Download and install VS2013 Express...
+	# http://www.microsoft.com/en-us/download/details.aspx?id=40787
+
+	$dest = "$env:TEMP\VS2013_RTM_DskExp_ENU.iso"
+	if (!(Test-Path $dest)) {
+		Write-Host "Downloading Visual Studio 2013 Desktop Express..."
+		curl.bat -o "$dest" http://download.microsoft.com/download/7/2/E/72E0F986-D247-4289-B9DC-C4FB07374894/VS2013_RTM_DskExp_ENU.iso
+	}
+	if (!(Get-DiskImage -ImagePath $dest -ErrorAction SilentlyContinue)) {
+		Mount-DiskImage -ImagePath $dest
+	}
+	$drive = (Get-DiskImage -ImagePath $dest | Get-Volume).DriveLetter
+	Write-Host "Mounted VS iso to drive $drive, now installing..."
+	$setupFile = "$drive`:\wdexpress_full.exe"
+	if (!(Test-Path $setupFile)) {
+		Start-Sleep -Milliseconds 1000
+	}
+	if (!(Test-Path $setupFile)) {
+		Write-Error "Can't find: $setupFile"
+		return
+	}
+	Start-Process $setupFile -Wait -ArgumentList "/Passive","/NoRestart"
+}
+function Set-Env {
+	param ([string]$name, [string]$value)
+	[Environment]::SetEnvironmentVariable($name, $value, "Machine")
+}
+
+function Set-EnvironmentVariables {
+	Set-Env "CHROME_BIN" "${env:ProgramFiles(x86)}\Google\Chrome\Application\chrome.exe"
+	Set-Env "CHROME_CANARY_BIN" "${env:ProgramFiles(x86)}\Google\Chrome\Application\chrome.exe"
+	Set-Env "FIREFOX_BIN" "$env:ProgramFiles\Firefox\firefox.exe"
+	Set-Env "IE_BIN" "$env:ProgramFiles\Internet Explorer\iexplorer.exe"
+	Set-Env "PHANTOMJS_BIN" "C:\PhantomJS\phantomjs.exe"
+}
+
+
+Install-ChocolateyPackages
+Install-VisualStudio
+Install-RubyGems
+Install-PythonPackages
+Install-NodePackages
+Install-PoshMonokai
+Install-SublimeTextPackages
+Set-EnvironmentVariables
+
+Write-Host "Please install manually:
+
+Visual Studio 2013 plugins:
+- NCrunch
+- ReSharper
+- Web Essentials 2013
+- Code Contracts
+
+ReSharper plugins:
+- NuGet Support for ReSharper
+- xUnit.net Test Support
+- AngularJS
+- CleanCode
+- TestCop
+
+" -BackgroundColor Black -ForegroundColor Magenta
+
+# in project after running 'yo angular':
+# bower install angular-bootstrap --save
+# bower install underscore
+# npm install karma-jasmine --save-dev
+# npm install karma-chrome-launcher --save-dev
+
+# Later, also see this for remote ubuntu testing:
+# https://github.com/exratione/protractor-selenium-server-vagrant
+
+# for e2e testing:
+# http://engineering.wingify.com/posts/e2e-testing-with-webdriverjs-jasmine/
