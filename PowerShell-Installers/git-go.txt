@@ -1,0 +1,8 @@
+# START http://boxstarter.org/package/nr/url?http://myurl/git-go.txt
+# See BoxStarter.org...
+
+Set-WindowsExplorerOptions -EnableShowHiddenFilesFoldersDrives -EnableShowProtectedOSFiles -EnableShowFileExtensions -EnableShowFullPathInTitleBar
+
+cinst git
+cinst git-credential-winstore
+cinst poshgit
